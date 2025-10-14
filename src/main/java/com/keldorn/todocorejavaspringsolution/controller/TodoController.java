@@ -35,7 +35,6 @@ public class TodoController {
     @PostMapping
     public ResponseEntity<TodoResponse> postTodo(@RequestBody TodoRequest request) {
         TodoResponse response = todoService.create(request);
-
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .buildAndExpand(response.todoId()).toUri();
         return ResponseEntity.created(uri).body(response);
