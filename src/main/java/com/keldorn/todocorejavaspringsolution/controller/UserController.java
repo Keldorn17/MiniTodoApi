@@ -4,6 +4,7 @@ import com.keldorn.todocorejavaspringsolution.dto.user.UserDetailedResponse;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserRequest;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserResponse;
 import com.keldorn.todocorejavaspringsolution.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> postUser(@RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> postUser(@Valid @RequestBody UserRequest request) {
         UserResponse response = userService.create(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .buildAndExpand(response.userId()).toUri();
@@ -42,12 +43,12 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserResponse> putUser(@PathVariable int userId, @RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> putUser(@PathVariable int userId, @Valid @RequestBody UserRequest request) {
         return ResponseEntity.ok(userService.update(userId, request));
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserResponse> patchUser(@PathVariable int userId, @RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> patchUser(@PathVariable int userId, @Valid @RequestBody UserRequest request) {
         return ResponseEntity.ok(userService.patch(userId, request));
     }
 

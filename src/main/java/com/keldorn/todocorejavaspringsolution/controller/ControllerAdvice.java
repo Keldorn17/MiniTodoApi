@@ -1,14 +1,16 @@
 package com.keldorn.todocorejavaspringsolution.controller;
 
+import com.keldorn.todocorejavaspringsolution.dto.error.ErrorResponse;
 import com.keldorn.todocorejavaspringsolution.exception.TodoNotFoundException;
 import com.keldorn.todocorejavaspringsolution.exception.UserNotFoundException;
-import com.keldorn.todocorejavaspringsolution.dto.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
 
 @RestControllerAdvice
 public class ControllerAdvice {
@@ -48,6 +50,27 @@ public class ControllerAdvice {
                 .statusCode(status)
                 .details(exception.getMessage())
                 .build();
+        return buildResponse(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleException(MethodArgumentNotValidException exception) {
+        List<String> errors = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .toList();
+
+        String errorMessage = String.join("; ", errors);
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .type(CLIENT_ERROR)
+                .title(status.getReasonPhrase())
+                .statusCode(status)
+                .details(errorMessage)
+                .build();
+
         return buildResponse(errorResponse);
     }
 

@@ -1,4 +1,6 @@
 package com.keldorn.todocorejavaspringsolution.dto.user;
 
-public record UserRequest(String email, String name) {
+import jakarta.validation.constraints.Email;
+
+public record UserRequest(@Email String email, String name) {
 }
