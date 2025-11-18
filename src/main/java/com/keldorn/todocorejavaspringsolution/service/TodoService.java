@@ -11,11 +11,13 @@ import com.keldorn.todocorejavaspringsolution.repository.TodoRepository;
 import com.keldorn.todocorejavaspringsolution.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TodoService {
@@ -25,6 +27,7 @@ public class TodoService {
     private final TodoMapper mapper;
 
     public TodoResponse findById(Long userId, Long todoId) {
+        log.debug("Finding todo by todoId={} for userId={}",todoId, userId);
         verifyOwner(userId, todoId);
         return mapper.toResponse(findByIdOrThrow(todoId));
     }
@@ -34,14 +37,16 @@ public class TodoService {
                 .orElseThrow(() -> new TodoNotFoundException("Todo not found by id: " + id));
     }
 
-    public List<TodoResponse> findAllForUser(Long userid) {
-        return repository.findAllForUser(userid)
+    public List<TodoResponse> findAllForUser(Long userId) {
+        log.debug("Finding todos for userId={}", userId);
+        return repository.findAllForUser(userId)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     public TodoResponse create(Long userId, TodoRequest request) {
+        log.debug("Creating todo for userId={}", userId);
         Todo todo = mapper.toEntity(request);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + userId));
@@ -51,6 +56,7 @@ public class TodoService {
     }
 
     public TodoResponse update(Long userId, Long todoId, TodoRequest request) {
+        log.debug("Updating todoId={} for userId={}", todoId, userId);
         verifyOwner(userId, todoId);
         Todo todo = findByIdOrThrow(todoId);
         todo.setCompleted(request.completed());
@@ -63,6 +69,7 @@ public class TodoService {
     }
 
     public TodoResponse patch(Long userId, Long todoId, TodoRequest request) {
+        log.debug("Patching todoId={} for userId={}", todoId, userId);
         verifyOwner(userId, todoId);
         Todo todo = findByIdOrThrow(todoId);
         if (request.completed() != null) todo.setCompleted(request.completed());
@@ -75,6 +82,7 @@ public class TodoService {
     }
 
     public void deleteById(Long userId, Long todoId) {
+        log.debug("Deleting todoId={} for userId={}", todoId, userId);
         verifyOwner(userId, todoId);
         findByIdOrThrow(todoId);
         repository.deleteById(todoId);
@@ -82,8 +90,10 @@ public class TodoService {
 
     @SneakyThrows
     private void verifyOwner(Long userId, Long todoId) {
+        log.debug("Verifying ownership. todoId={}, userId={}", todoId, userId);
         Todo todo = findByIdOrThrow(todoId);
         if (!todo.getUser().getUserId().equals(userId)) {
+            log.warn("User {} attempted forbidden access to todo {}", userId, todoId);
             throw new AccessDeniedException("You do not own this todo");
         }
     }

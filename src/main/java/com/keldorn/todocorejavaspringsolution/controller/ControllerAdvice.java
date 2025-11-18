@@ -3,6 +3,7 @@ package com.keldorn.todocorejavaspringsolution.controller;
 import com.keldorn.todocorejavaspringsolution.dto.error.ErrorResponse;
 import com.keldorn.todocorejavaspringsolution.exception.TodoNotFoundException;
 import com.keldorn.todocorejavaspringsolution.exception.UserNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +15,7 @@ import java.nio.file.AccessDeniedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
+@Slf4j
 @RestControllerAdvice
 public class ControllerAdvice {
 
@@ -22,6 +24,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(TodoNotFoundException.class)
     public ResponseEntity<Object> handleException(TodoNotFoundException exception) {
+        log.warn("TodoNotFoundException: {}", exception.getMessage());
         HttpStatus status = HttpStatus.NOT_FOUND;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
@@ -34,6 +37,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleException(UserNotFoundException exception) {
+        log.warn("UserNotFoundException: {}", exception.getMessage());
         HttpStatus status = HttpStatus.NOT_FOUND;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
@@ -46,6 +50,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<Object> handleException(SQLIntegrityConstraintViolationException exception) {
+        log.warn("SQLIntegrityConstraintViolationException: {}", exception.getMessage());
         HttpStatus status = HttpStatus.CONFLICT;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
@@ -58,6 +63,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Object> handleException(UsernameNotFoundException exception) {
+        log.warn("UsernameNotFoundException: {}", exception.getMessage());
         HttpStatus status = HttpStatus.NOT_FOUND;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
@@ -70,6 +76,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleException(AccessDeniedException exception) {
+        log.warn("AccessDeniedException: {}", exception.getMessage());
         HttpStatus status = HttpStatus.FORBIDDEN;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
@@ -82,6 +89,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception exception) {
+        log.warn("Exception: {}", exception.getMessage());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(INTERNAL_ERROR)
@@ -94,6 +102,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleException(MethodArgumentNotValidException exception) {
+        log.warn("MethodArgumentNotValidException: {}", exception.getMessage());
         List<String> errors = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
