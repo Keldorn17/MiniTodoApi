@@ -10,8 +10,10 @@ import com.keldorn.todocorejavaspringsolution.mapper.TodoMapper;
 import com.keldorn.todocorejavaspringsolution.repository.TodoRepository;
 import com.keldorn.todocorejavaspringsolution.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -22,7 +24,8 @@ public class TodoService {
     private final UserRepository userRepository;
     private final TodoMapper mapper;
 
-    public TodoResponse findById(Long todoId) {
+    public TodoResponse findById(Long userId, Long todoId) {
+        verifyOwner(userId, todoId);
         return mapper.toResponse(findByIdOrThrow(todoId));
     }
 
@@ -38,9 +41,8 @@ public class TodoService {
                 .toList();
     }
 
-    public TodoResponse create(TodoRequest request) {
+    public TodoResponse create(Long userId, TodoRequest request) {
         Todo todo = mapper.toEntity(request);
-        Long userId = todo.getUser().getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + userId));
         todo.setUser(user);
@@ -48,7 +50,8 @@ public class TodoService {
         return mapper.toResponse(repository.save(todo));
     }
 
-    public TodoResponse update(Long todoId, TodoRequest request) {
+    public TodoResponse update(Long userId, Long todoId, TodoRequest request) {
+        verifyOwner(userId, todoId);
         Todo todo = findByIdOrThrow(todoId);
         todo.setCompleted(request.completed());
         todo.setTitle(request.title());
@@ -59,7 +62,8 @@ public class TodoService {
         return mapper.toResponse(repository.save(todo));
     }
 
-    public TodoResponse patch(Long todoId, TodoRequest request) {
+    public TodoResponse patch(Long userId, Long todoId, TodoRequest request) {
+        verifyOwner(userId, todoId);
         Todo todo = findByIdOrThrow(todoId);
         if (request.completed() != null) todo.setCompleted(request.completed());
         if (request.title() != null) todo.setTitle(request.title());
@@ -70,9 +74,17 @@ public class TodoService {
         return mapper.toResponse(repository.save(todo));
     }
 
-    public void deleteById(Long id) {
-        findByIdOrThrow(id);
-        repository.deleteById(id);
+    public void deleteById(Long userId, Long todoId) {
+        verifyOwner(userId, todoId);
+        findByIdOrThrow(todoId);
+        repository.deleteById(todoId);
     }
 
+    @SneakyThrows
+    private void verifyOwner(Long userId, Long todoId) {
+        Todo todo = findByIdOrThrow(todoId);
+        if (!todo.getUser().getUserId().equals(userId)) {
+            throw new AccessDeniedException("You do not own this todo");
+        }
+    }
 }

@@ -12,7 +12,7 @@
             Register
         </h2>
 
-        <form th:action="@{/register}" method="post" th:object="${webUser}">
+        <form th:action="@{/register}" method="post" th:object="${userRequest}">
 
             <div th:if="${#fields.hasErrors('global')}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
                 <p class="font-medium">Registration failed:</p>

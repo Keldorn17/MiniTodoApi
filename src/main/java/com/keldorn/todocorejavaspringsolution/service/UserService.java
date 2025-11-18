@@ -7,10 +7,7 @@ import com.keldorn.todocorejavaspringsolution.dto.user.UserResponse;
 import com.keldorn.todocorejavaspringsolution.exception.UserNotFoundException;
 import com.keldorn.todocorejavaspringsolution.mapper.UserMapper;
 import com.keldorn.todocorejavaspringsolution.repository.UserRepository;
-import com.keldorn.todocorejavaspringsolution.security.AppUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,26 +31,16 @@ public class UserService {
         return mapper.toResponse(repository.save(user));
     }
 
-    public UserDetailedResponse getUserTodos(Authentication auth) {
-        return mapper.toDetailedResponse(repository.getUserTodos(getIdFromAuth(auth)));
+    public UserDetailedResponse getUserTodos(Long userId) {
+        return mapper.toDetailedResponse(repository.getUserTodos(userId));
     }
 
-    public UserResponse getCurrentUser(Authentication auth) {
-        return mapper.toResponse(findByIdOrThrow(getIdFromAuth(auth)));
-    }
-
-    private Long getIdFromAuth(Authentication auth) {
-        AppUserDetails userDetails = (AppUserDetails) auth.getPrincipal();
-        return userDetails.getId();
+    public UserResponse getCurrentUser(Long userId) {
+        return mapper.toResponse(findByIdOrThrow(userId));
     }
 
     public boolean isUsernameTaken(String username) {
         return repository.getUserUsernameCount(username) != 0;
-    }
-
-    public User findByUsername(String username) {
-        return repository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found: "+ username));
     }
 
     public boolean isEmailTaken(String email) {

@@ -10,6 +10,5 @@ import org.mapstruct.Mapping;
 public interface TodoMapper {
     @Mapping(target = "userId", source = "user.userId")
     TodoResponse toResponse(Todo todo);
-    @Mapping(target = "user.userId", source = "userId")
     Todo toEntity(TodoRequest request);
 }

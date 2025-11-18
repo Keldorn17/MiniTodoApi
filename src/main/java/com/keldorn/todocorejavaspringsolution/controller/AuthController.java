@@ -27,13 +27,13 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerPage(Model model) {
-        model.addAttribute("webUser", new UserRequest());
+        model.addAttribute("userRequest", new UserRequest());
         return "auth/register";
     }
 
     @PostMapping("/register")
     public String registerUser(
-            @ModelAttribute("webUser") @Valid UserRequest userRequest,
+            @ModelAttribute("userRequest") @Valid UserRequest userRequest,
             BindingResult bindingResult,
             Model model) {
 
@@ -42,14 +42,14 @@ public class AuthController {
         }
 
         if (userService.isUsernameTaken(userRequest.getUsername())) {
-            model.addAttribute("webUser", new UserRequest());
+            model.addAttribute("userRequest", new UserRequest());
             model.addAttribute("global", "Username is taken");
 
             return "auth/register";
         }
 
         if (userService.isEmailTaken(userRequest.getEmail())) {
-            model.addAttribute("webUser", new UserRequest());
+            model.addAttribute("userRequest", new UserRequest());
             model.addAttribute("global", "Email is taken");
 
             return "auth/register";

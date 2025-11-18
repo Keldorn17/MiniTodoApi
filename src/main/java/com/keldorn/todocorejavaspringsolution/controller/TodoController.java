@@ -1,12 +1,11 @@
 package com.keldorn.todocorejavaspringsolution.controller;
 
+import com.keldorn.todocorejavaspringsolution.annotation.CurrentUser;
 import com.keldorn.todocorejavaspringsolution.dto.todo.TodoRequest;
 import com.keldorn.todocorejavaspringsolution.dto.todo.TodoResponse;
-import com.keldorn.todocorejavaspringsolution.security.AppUserDetails;
 import com.keldorn.todocorejavaspringsolution.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -25,37 +24,36 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TodoResponse>> getTodosForUser(Authentication authentication) {
-        AppUserDetails userDetails = (AppUserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(todoService.findAllForUser(userDetails.getId()));
+    public ResponseEntity<List<TodoResponse>> getTodosForUser(@CurrentUser Long userId) {
+        return ResponseEntity.ok(todoService.findAllForUser(userId));
     }
 
     @GetMapping("/{todoId}")
-    public ResponseEntity<TodoResponse> getTodoById(@PathVariable Long todoId) {
-        return ResponseEntity.ok(todoService.findById(todoId));
+    public ResponseEntity<TodoResponse> getTodoById(@CurrentUser Long userId, @PathVariable Long todoId) {
+        return ResponseEntity.ok(todoService.findById(userId, todoId));
     }
 
     @PostMapping
-    public ResponseEntity<TodoResponse> postTodo(@RequestBody TodoRequest request) {
-        TodoResponse response = todoService.create(request);
+    public ResponseEntity<TodoResponse> postTodo(@CurrentUser Long userId, @RequestBody TodoRequest request) {
+        TodoResponse response = todoService.create(userId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .buildAndExpand(response.todoId()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
 
     @PatchMapping("/{todoId}")
-    public ResponseEntity<TodoResponse> patchTodo(@PathVariable Long todoId, @RequestBody TodoRequest request) {
-        return ResponseEntity.ok(todoService.patch(todoId, request));
+    public ResponseEntity<TodoResponse> patchTodo(@CurrentUser Long userId, @PathVariable Long todoId, @RequestBody TodoRequest request) {
+        return ResponseEntity.ok(todoService.patch(userId, todoId, request));
     }
 
     @PutMapping("/{todoId}")
-    public ResponseEntity<TodoResponse> putTodo(@PathVariable Long todoId, @RequestBody TodoRequest request) {
-        return ResponseEntity.ok(todoService.update(todoId, request));
+    public ResponseEntity<TodoResponse> putTodo(@CurrentUser Long userId, @PathVariable Long todoId, @RequestBody TodoRequest request) {
+        return ResponseEntity.ok(todoService.update(userId, todoId, request));
     }
 
     @DeleteMapping("/{todoId}")
-    public ResponseEntity<Void> deleteTodo(@PathVariable Long todoId) {
-        todoService.deleteById(todoId);
+    public ResponseEntity<Void> deleteTodo(@CurrentUser Long userId, @PathVariable Long todoId) {
+        todoService.deleteById(userId, todoId);
         return ResponseEntity.noContent().build();
     }
 }
