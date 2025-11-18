@@ -4,7 +4,9 @@ import com.keldorn.todocorejavaspringsolution.domain.entity.User;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserDetailedResponse;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserRequest;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserResponse;
+import com.keldorn.todocorejavaspringsolution.exception.EmailIsTakenException;
 import com.keldorn.todocorejavaspringsolution.exception.UserNotFoundException;
+import com.keldorn.todocorejavaspringsolution.exception.UsernameIsTakenException;
 import com.keldorn.todocorejavaspringsolution.mapper.UserMapper;
 import com.keldorn.todocorejavaspringsolution.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class UserService {
 
     public UserResponse createUser(UserRequest request) {
         log.debug("Creating user.");
+        isUsernameTaken(request.getUsername());
+        isEmailTaken(request.getEmail());
         User user = mapper.toEntity(request);
         user.setPasswordHashed(passwordEncoder.encode(user.getPasswordHashed()));
         user.setRole("ROLE_USER");
@@ -44,13 +48,17 @@ public class UserService {
         return mapper.toResponse(findByIdOrThrow(userId));
     }
 
-    public boolean isUsernameTaken(String username) {
+    private void isUsernameTaken(String username) {
         log.debug("Checking if username is taken");
-        return repository.getUserUsernameCount(username) != 0;
+        if (repository.getUserUsernameCount(username) != 0) {
+            throw new UsernameIsTakenException("Username is taken.");
+        }
     }
 
-    public boolean isEmailTaken(String email) {
+    private void isEmailTaken(String email) {
         log.debug("Checking if email is taken");
-        return repository.getUserEmailCount(email) != 0;
+        if (repository.getUserEmailCount(email) != 0) {
+            throw new EmailIsTakenException("Email is taken.");
+        }
     }
 }

@@ -1,8 +1,10 @@
 package com.keldorn.todocorejavaspringsolution.controller;
 
 import com.keldorn.todocorejavaspringsolution.dto.error.ErrorResponse;
+import com.keldorn.todocorejavaspringsolution.exception.EmailIsTakenException;
 import com.keldorn.todocorejavaspringsolution.exception.TodoNotFoundException;
 import com.keldorn.todocorejavaspringsolution.exception.UserNotFoundException;
+import com.keldorn.todocorejavaspringsolution.exception.UsernameIsTakenException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,6 +80,32 @@ public class ControllerAdvice {
     public ResponseEntity<Object> handleException(AccessDeniedException exception) {
         log.warn("AccessDeniedException: {}", exception.getMessage());
         HttpStatus status = HttpStatus.FORBIDDEN;
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .type(CLIENT_ERROR)
+                .title(status.getReasonPhrase())
+                .statusCode(status)
+                .details(exception.getMessage())
+                .build();
+        return buildResponse(errorResponse);
+    }
+
+    @ExceptionHandler(UsernameIsTakenException.class)
+    public ResponseEntity<Object> handleException(UsernameIsTakenException exception) {
+        log.warn("UsernameIsTakenException: {}", exception.getMessage());
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .type(CLIENT_ERROR)
+                .title(status.getReasonPhrase())
+                .statusCode(status)
+                .details(exception.getMessage())
+                .build();
+        return buildResponse(errorResponse);
+    }
+
+    @ExceptionHandler(EmailIsTakenException.class)
+    public ResponseEntity<Object> handleException(EmailIsTakenException exception) {
+        log.warn("EmailIsTakenException: {}", exception.getMessage());
+        HttpStatus status = HttpStatus.CONFLICT;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
                 .title(status.getReasonPhrase())
