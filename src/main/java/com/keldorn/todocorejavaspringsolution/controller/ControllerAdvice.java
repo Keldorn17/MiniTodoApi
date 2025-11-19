@@ -1,10 +1,7 @@
 package com.keldorn.todocorejavaspringsolution.controller;
 
 import com.keldorn.todocorejavaspringsolution.dto.error.ErrorResponse;
-import com.keldorn.todocorejavaspringsolution.exception.EmailIsTakenException;
-import com.keldorn.todocorejavaspringsolution.exception.TodoNotFoundException;
-import com.keldorn.todocorejavaspringsolution.exception.UserNotFoundException;
-import com.keldorn.todocorejavaspringsolution.exception.UsernameIsTakenException;
+import com.keldorn.todocorejavaspringsolution.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -106,6 +103,19 @@ public class ControllerAdvice {
     public ResponseEntity<Object> handleException(EmailIsTakenException exception) {
         log.warn("EmailIsTakenException: {}", exception.getMessage());
         HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .type(CLIENT_ERROR)
+                .title(status.getReasonPhrase())
+                .statusCode(status)
+                .details(exception.getMessage())
+                .build();
+        return buildResponse(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidJwtTokenReceivedException.class)
+    public ResponseEntity<Object> handleException(InvalidJwtTokenReceivedException exception) {
+        log.warn("InvalidJwtTokenReceivedException: {}", exception.getMessage());
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(CLIENT_ERROR)
                 .title(status.getReasonPhrase())

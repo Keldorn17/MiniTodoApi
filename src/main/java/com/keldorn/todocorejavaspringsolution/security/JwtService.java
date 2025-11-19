@@ -1,5 +1,6 @@
 package com.keldorn.todocorejavaspringsolution.security;
 
+import com.keldorn.todocorejavaspringsolution.exception.InvalidJwtTokenReceivedException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,12 +26,16 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (Exception e) {
+            throw new InvalidJwtTokenReceivedException("Invalid token received");
+        }
     }
 
     public boolean isValid(String token) {
