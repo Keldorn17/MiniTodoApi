@@ -10,7 +10,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     UserResponse toResponse(User user);
-    @Mapping(target = "passwordHashed", source = "password")
     User toEntity(UserRequest request);
     @Mapping(target = "todos", source = "user.todos")
     UserDetailedResponse toDetailedResponse(User user);

@@ -6,8 +6,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,11 +21,11 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final AppUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final HandlerExceptionResolver resolver;
 
     public JwtAuthFilter(JwtService jwtService,
-                         AppUserDetailsService userDetailsService,
+                         UserDetailsService userDetailsService,
                          @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
@@ -31,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
@@ -46,9 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String username = jwtService.extractUsername(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
                 var userDetails = userDetailsService.loadUserByUsername(username);
-
                 if (jwtService.isValid(token)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
@@ -56,11 +56,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     null,
                                     userDetails.getAuthorities()
                             );
-
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );
-
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }

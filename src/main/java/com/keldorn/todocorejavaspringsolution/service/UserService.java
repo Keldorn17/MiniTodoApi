@@ -1,6 +1,7 @@
 package com.keldorn.todocorejavaspringsolution.service;
 
 import com.keldorn.todocorejavaspringsolution.domain.entity.User;
+import com.keldorn.todocorejavaspringsolution.domain.enums.Role;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserDetailedResponse;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserRequest;
 import com.keldorn.todocorejavaspringsolution.dto.user.UserResponse;
@@ -33,8 +34,8 @@ public class UserService {
         isUsernameTaken(request.getUsername());
         isEmailTaken(request.getEmail());
         User user = mapper.toEntity(request);
-        user.setPasswordHashed(passwordEncoder.encode(user.getPasswordHashed()));
-        user.setRole("ROLE_USER");
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.ROLE_USER);
         return mapper.toResponse(repository.save(user));
     }
 

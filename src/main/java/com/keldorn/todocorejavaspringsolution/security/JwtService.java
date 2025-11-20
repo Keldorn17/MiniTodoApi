@@ -14,9 +14,9 @@ import java.util.Date;
 public class JwtService {
 
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION = 1000 * 60 * 60 * 24;
 
     public String generateToken(String username) {
+        long EXPIRATION = 1000 * 60 * 60 * 24;
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())

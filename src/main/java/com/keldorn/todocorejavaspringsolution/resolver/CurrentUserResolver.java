@@ -1,7 +1,7 @@
 package com.keldorn.todocorejavaspringsolution.resolver;
 
 import com.keldorn.todocorejavaspringsolution.annotation.CurrentUser;
-import com.keldorn.todocorejavaspringsolution.security.AppUserDetails;
+import com.keldorn.todocorejavaspringsolution.domain.entity.User;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +21,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AppUserDetails user = (AppUserDetails) auth.getPrincipal();
-        return user.getId();
+        User user = (User) auth.getPrincipal();
+        return user.getUserId();
     }
 }
