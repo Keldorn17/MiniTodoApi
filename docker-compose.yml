@@ -4,7 +4,7 @@ services:
     container_name: spring-api
     env_file: .env
     ports:
-      - "${SPRING_PORT}:8080"
+      - "8080:8080"
     # For Linux hosts, this ensures host.docker.internal works:
     extra_hosts:
       - "host.docker.internal:host-gateway"
