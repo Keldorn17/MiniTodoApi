@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      author: Csaba Csíkos
+      file: schema-changelog.sql
+      relativeToChangelogFile: true
